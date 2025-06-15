@@ -25,6 +25,7 @@ import WeatherWidget from '../components/WeatherWidget';
 import GitHubStats from '../components/GitHubStats';
 import GameSection from '../components/GameSection';
 import FuturisticAIChat from '../components/FuturisticAIChat';
+import RealTimeAIChat from '../components/RealTimeAIChat';
 import SocialSidebar from '../components/SocialSidebar';
 
 const Index = () => {
@@ -133,13 +134,24 @@ const Index = () => {
                 <div className="max-w-5xl mx-auto">
                   <div className="text-center mb-12">
                     <h2 className="text-4xl font-bold text-terminal-green mb-6 font-mono">
-                      <span className="syntax-keyword">class</span> <span className="syntax-function">AdvancedAI</span> {"{"}
+                      <span className="syntax-keyword">class</span> <span className="syntax-function">RealTimeAI</span> {"{"}
                     </h2>
                     <p className="text-terminal-text/80 text-lg">
-                      <span className="syntax-comment">/* Enhanced neural interface with voice, image, and quantum processing */</span>
+                      <span className="syntax-comment">/* Live conversation with GPT-4, Claude, Groq and more */</span>
                     </p>
                   </div>
-                  <FuturisticAIChat />
+                  <RealTimeAIChat />
+                  <div className="mt-12">
+                    <div className="text-center mb-8">
+                      <h3 className="text-2xl font-bold text-terminal-blue mb-4 font-mono">
+                        <span className="syntax-keyword">class</span> <span className="syntax-function">AdvancedAI</span> {"{"}
+                      </h3>
+                      <p className="text-terminal-text/80">
+                        <span className="syntax-comment">/* Enhanced neural interface with voice, image, and quantum processing */</span>
+                      </p>
+                    </div>
+                    <FuturisticAIChat />
+                  </div>
                   <p className="text-terminal-green text-4xl font-bold mt-8 text-center">{"}"}</p>
                 </div>
               </div>
