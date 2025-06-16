@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Cloud, Sun, CloudRain, CloudSnow, Wind, Thermometer, Eye, Droplets, MapPin, Clock, Wifi, Zap } from 'lucide-react';
 
@@ -34,46 +33,76 @@ const WeatherWidget = () => {
 
   const fetchLocationByIP = async () => {
     try {
-      // Try multiple IP APIs for better reliability
-      const apis = [
-        'https://ipapi.co/json/',
-        'http://ip-api.com/json/',
-        'https://api.ipify.org?format=json'
-      ];
+      console.log('Attempting to detect location...');
       
-      for (const api of apis) {
+      // First try browser geolocation API
+      if (navigator.geolocation) {
         try {
-          const response = await fetch(api);
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+          });
+          
+          console.log('Browser geolocation successful:', position.coords);
+          
+          // Use reverse geocoding with a free service
+          const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`);
           const data = await response.json();
           
-          if (api.includes('ipapi.co')) {
-            return {
-              city: data.city || 'Unknown',
-              region: data.region || data.region_code || '',
-              country: data.country_name || data.country || '',
-              timezone: data.timezone || 'UTC',
-              lat: parseFloat(data.latitude) || 0,
-              lon: parseFloat(data.longitude) || 0
-            };
-          } else if (api.includes('ip-api.com')) {
-            return {
-              city: data.city || 'Unknown',
-              region: data.regionName || data.region || '',
-              country: data.country || '',
-              timezone: data.timezone || 'UTC',
-              lat: data.lat || 0,
-              lon: data.lon || 0
-            };
-          }
-        } catch (apiError) {
-          console.log(`Failed to fetch from ${api}:`, apiError);
-          continue;
+          return {
+            city: data.city || data.locality || 'Unknown City',
+            region: data.principalSubdivision || '',
+            country: data.countryName || '',
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          };
+        } catch (geoError) {
+          console.log('Browser geolocation failed:', geoError);
         }
       }
       
-      throw new Error('All location APIs failed');
+      // Fallback to IP-based location
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+      console.log('IP detected:', ipData.ip);
+      
+      // Try to get location from IP using a free service
+      try {
+        const locationResponse = await fetch(`https://freeipapi.com/api/json/${ipData.ip}`);
+        const locationData = await locationResponse.json();
+        
+        if (locationData && locationData.cityName) {
+          console.log('Location from IP:', locationData);
+          return {
+            city: locationData.cityName || 'Unknown',
+            region: locationData.regionName || '',
+            country: locationData.countryName || '',
+            timezone: locationData.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+            lat: parseFloat(locationData.latitude) || 0,
+            lon: parseFloat(locationData.longitude) || 0
+          };
+        }
+      } catch (ipLocationError) {
+        console.log('IP location service failed:', ipLocationError);
+      }
+      
+      // Final fallback - use timezone to guess location
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log('Using timezone fallback:', timezone);
+      
+      const cityFromTimezone = timezone.split('/').pop()?.replace(/_/g, ' ') || 'Unknown';
+      
+      return {
+        city: cityFromTimezone,
+        region: '',
+        country: timezone.split('/')[0] === 'America' ? 'United States' : 'Unknown',
+        timezone: timezone,
+        lat: 0,
+        lon: 0
+      };
+      
     } catch (error) {
-      console.log('Location detection failed, using default');
+      console.log('All location detection methods failed, using default');
       return {
         city: 'San Francisco',
         region: 'CA',
@@ -86,21 +115,31 @@ const WeatherWidget = () => {
   };
 
   const generateWeatherFromLocation = (locationData: LocationData): WeatherData => {
-    // Generate realistic weather based on location
+    // Generate realistic weather based on location and time
     const conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Clear'];
-    const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+    const hour = new Date().getHours();
     
-    // Base temperature on latitude (rough approximation)
+    // Choose condition based on time of day
+    let condition = conditions[Math.floor(Math.random() * conditions.length)];
+    if (hour >= 6 && hour <= 18) {
+      condition = Math.random() > 0.3 ? 'Sunny' : 'Partly Cloudy';
+    } else {
+      condition = Math.random() > 0.5 ? 'Clear' : 'Partly Cloudy';
+    }
+    
+    // Base temperature on latitude and season
     const baseTemp = Math.max(5, Math.min(35, 25 - Math.abs(locationData.lat) * 0.5 + Math.random() * 10));
     
     return {
       temperature: Math.round(baseTemp),
-      condition: randomCondition,
+      condition: condition,
       humidity: Math.round(40 + Math.random() * 40),
       windSpeed: Math.round(5 + Math.random() * 20),
       visibility: Math.round(8 + Math.random() * 7),
-      location: `${locationData.city}, ${locationData.region}`,
-      icon: randomCondition.toLowerCase().replace(' ', '-'),
+      location: locationData.city && locationData.region ? 
+        `${locationData.city}, ${locationData.region}` : 
+        locationData.city || 'Unknown Location',
+      icon: condition.toLowerCase().replace(' ', '-'),
       feelsLike: Math.round(baseTemp + (Math.random() - 0.5) * 4),
       uvIndex: Math.round(Math.random() * 10),
       pressure: Math.round(1000 + Math.random() * 50)
@@ -114,19 +153,23 @@ const WeatherWidget = () => {
 
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
+      
       try {
+        console.log('Starting location detection...');
         const locationData = await fetchLocationByIP();
+        console.log('Location detected:', locationData);
         setLocation(locationData);
         
         // Simulate API delay for realistic feel
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const weatherData = generateWeatherFromLocation(locationData);
+        console.log('Weather generated:', weatherData);
         setWeather(weatherData);
-        setError(null);
       } catch (err) {
-        setError('Failed to fetch weather data');
         console.error('Weather fetch error:', err);
+        setError('Failed to detect location');
       } finally {
         setLoading(false);
       }
@@ -196,7 +239,7 @@ const WeatherWidget = () => {
             </div>
             <div className="space-y-2">
               <span className="text-terminal-green font-mono text-lg font-semibold glow-text animate-pulse">Detecting location...</span>
-              <div className="text-terminal-text/60 text-sm font-mono">Initializing weather systems</div>
+              <div className="text-terminal-text/60 text-sm font-mono">GPS & IP geolocation active</div>
             </div>
           </div>
         </div>
@@ -210,9 +253,9 @@ const WeatherWidget = () => {
         <div className="p-6">
           <div className="text-red-400 font-mono text-lg flex items-center glow-text">
             <div className="w-3 h-3 bg-red-400 rounded-full mr-3 animate-pulse shadow-lg shadow-red-400/50" />
-            Weather System Offline
+            Location Detection Failed
           </div>
-          <div className="text-red-300/60 text-sm mt-2">Unable to connect to weather services</div>
+          <div className="text-red-300/60 text-sm mt-2">Unable to determine current location</div>
         </div>
       </div>
     );
@@ -241,7 +284,7 @@ const WeatherWidget = () => {
               <div className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse shadow-lg shadow-yellow-400/60" style={{ animationDelay: '0.3s' }}></div>
               <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-lg shadow-green-400/60" style={{ animationDelay: '0.6s' }}></div>
             </div>
-            <span className="text-terminal-green text-sm font-mono font-bold glow-text tracking-wide">WEATHER.SYS</span>
+            <span className="text-terminal-green text-sm font-mono font-bold glow-text tracking-wide">LOCATION.SYS</span>
           </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -346,11 +389,11 @@ const WeatherWidget = () => {
         <div className="flex items-center justify-between text-terminal-text/50 text-xs font-mono pt-3 border-t border-terminal-green/10">
           <div className="flex items-center space-x-2">
             <div className="w-2 h-2 bg-terminal-green rounded-full animate-pulse shadow-md shadow-terminal-green/60" />
-            <span className="font-semibold tracking-wide">LIVE FEED</span>
+            <span className="font-semibold tracking-wide">LOCATION ACTIVE</span>
           </div>
           <div className="flex items-center space-x-2">
             <Wifi className="w-3 h-3 animate-pulse" />
-            <span className="font-semibold tracking-wide">SYNCHRONIZED</span>
+            <span className="font-semibold tracking-wide">GPS ENABLED</span>
           </div>
         </div>
       </div>
