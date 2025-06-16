@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 const Services = () => {
@@ -125,16 +126,16 @@ const Services = () => {
           {services.map((service, index) => (
             <div
               key={service.name}
-              className="group bg-terminal-bg/50 rounded-lg border border-terminal-border p-6 hover:border-terminal-green transition-all duration-300 hover:shadow-lg hover:shadow-terminal-green/20 animate-float"
+              className="group bg-terminal-bg/50 rounded-lg border border-terminal-border p-6 hover:border-terminal-green transition-all duration-300 hover:shadow-lg hover:shadow-terminal-green/20"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {/* Service Icon */}
-              <div className={`w-12 h-12 bg-gradient-to-r ${service.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+              <div className={`w-12 h-12 bg-gradient-to-r ${service.color} rounded-lg flex items-center justify-center mb-4 transition-transform duration-300`}>
                 <span className="text-2xl">{service.icon}</span>
               </div>
 
               {/* Service Name */}
-              <h3 className="text-lg font-semibold text-terminal-text mb-3 group-hover:text-terminal-green transition-colors">
+              <h3 className="text-lg font-semibold text-terminal-text mb-3 group-hover:text-terminal-green transition-colors duration-300">
                 <span className="syntax-string">"{service.name}"</span>
               </h3>
 
@@ -159,7 +160,7 @@ const Services = () => {
                 <p className="text-terminal-yellow text-sm">]</p>
               </div>
 
-              {/* Learn More Button - Fixed positioning and functionality */}
+              {/* Learn More Button */}
               <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <button 
                   onClick={() => handleLearnMore(service.name)}
