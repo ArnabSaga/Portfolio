@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Code, Database, Brain, Globe } from 'lucide-react';
 
@@ -70,6 +69,30 @@ const Hero = () => {
       color: 'text-terminal-yellow'
     }
   ];
+
+  const handleExploreProjects = () => {
+    // Scroll to portfolio section
+    const portfolioSection = document.querySelector('[data-section="portfolio"]');
+    if (portfolioSection) {
+      portfolioSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Fallback: trigger portfolio section if using navigation
+      const event = new CustomEvent('navigate', { detail: 'portfolio' });
+      window.dispatchEvent(event);
+    }
+  };
+
+  const handleContactUs = () => {
+    // Scroll to contact section
+    const contactSection = document.querySelector('[data-section="contact"]');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Fallback: trigger contact section if using navigation
+      const event = new CustomEvent('navigate', { detail: 'contact' });
+      window.dispatchEvent(event);
+    }
+  };
 
   return (
     <section className="min-h-screen flex items-center justify-center relative overflow-hidden py-20 px-6">
@@ -172,10 +195,16 @@ const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-terminal-green text-terminal-bg px-8 py-3 rounded-lg font-semibold hover:bg-terminal-green/90 transition-colors hover-scale">
+            <button 
+              onClick={handleExploreProjects}
+              className="bg-terminal-green text-terminal-bg px-8 py-3 rounded-lg font-semibold hover:bg-terminal-green/90 transition-colors hover-scale cursor-pointer"
+            >
               <span className="syntax-function">exploreProjects</span>()
             </button>
-            <button className="border border-terminal-green text-terminal-green px-8 py-3 rounded-lg font-semibold hover:bg-terminal-green/10 transition-colors hover-scale">
+            <button 
+              onClick={handleContactUs}
+              className="border border-terminal-green text-terminal-green px-8 py-3 rounded-lg font-semibold hover:bg-terminal-green/10 transition-colors hover-scale cursor-pointer"
+            >
               <span className="syntax-function">contactUs</span>()
             </button>
           </div>

@@ -42,8 +42,18 @@ const Index = () => {
     `;
     document.head.appendChild(style);
 
+    // Listen for custom navigation events
+    const handleNavigation = (event: any) => {
+      if (event.detail) {
+        setActiveSection(event.detail);
+      }
+    };
+
+    window.addEventListener('navigate', handleNavigation);
+
     return () => {
       document.head.removeChild(style);
+      window.removeEventListener('navigate', handleNavigation);
     };
   }, []);
 
@@ -91,41 +101,45 @@ const Index = () => {
         );
       case 'about':
         return (
-          <ScrollReveal direction="up">
-            <About />
-          </ScrollReveal>
+          <div data-section="about">
+            <ScrollReveal direction="up">
+              <About />
+            </ScrollReveal>
+          </div>
         );
       case 'services':
         return (
-          <ScrollReveal direction="up">
-            <Services />
-          </ScrollReveal>
+          <div data-section="services">
+            <ScrollReveal direction="up">
+              <Services />
+            </ScrollReveal>
+          </div>
         );
       case 'portfolio':
         return (
-          <>
+          <div data-section="portfolio">
             <ScrollReveal direction="up">
               <Portfolio />
             </ScrollReveal>
             <ScrollReveal direction="up" delay={200}>
               <ProjectCarousel />
             </ScrollReveal>
-          </>
+          </div>
         );
       case 'contact':
         return (
-          <>
+          <div data-section="contact">
             <ScrollReveal direction="up">
               <Contact />
             </ScrollReveal>
             <ScrollReveal direction="up" delay={200}>
               <RealTimeContactForm />
             </ScrollReveal>
-          </>
+          </div>
         );
       case 'ai-assistant':
         return (
-          <>
+          <div data-section="ai-assistant">
             <ScrollReveal direction="up">
               <AIAssistant />
             </ScrollReveal>
@@ -156,7 +170,7 @@ const Index = () => {
                 </div>
               </div>
             </ScrollReveal>
-          </>
+          </div>
         );
       default:
         return (

@@ -38,7 +38,7 @@ app.get('/api/products', async (req, res) => {
   res.json(products);
 });`,
       github: "https://github.com/nodexStation",
-      live: "#"
+      live: "https://nodexstation-ecommerce-demo.lovableproject.com"
     },
     {
       id: 2,
@@ -78,7 +78,7 @@ class ProductVisualizer {
   }
 }`,
       github: "https://github.com/nodexStation",
-      live: "#"
+      live: "https://nodexstation-3d-demo.lovableproject.com"
     },
     {
       id: 3,
@@ -139,7 +139,7 @@ async def websocket_endpoint(websocket: WebSocket):
         response = await agent.process_message(data)
         await websocket.send_text(response)`,
       github: "https://github.com/nodexStation",
-      live: "#"
+      live: "https://nodexstation-ai-chat-demo.lovableproject.com"
     },
     {
       id: 4,
@@ -203,7 +203,7 @@ async def process_scraped_data(data_batch):
     # Store in database
     await store_to_database(df)`,
       github: "https://github.com/nodexStation",
-      live: "#"
+      live: "https://nodexstation-analytics-demo.lovableproject.com"
     }
   ];
 
@@ -213,6 +213,16 @@ async def process_scraped_data(data_batch):
   const filteredProjects = activeCategory === "All" 
     ? projects 
     : projects.filter(project => project.category === activeCategory);
+
+  const handleLiveDemo = (project: typeof projects[0]) => {
+    // Open live demo in new tab
+    window.open(project.live, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleViewCode = (project: typeof projects[0]) => {
+    // Open GitHub repository in new tab
+    window.open(project.github, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <section className="min-h-screen py-20 px-6">
@@ -273,30 +283,32 @@ async def process_scraped_data(data_batch):
                     </span>
                   </div>
                   <div className="flex space-x-2">
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-terminal-text/60 hover:text-terminal-green transition-colors"
-                      onClick={(e) => e.stopPropagation()}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewCode(project);
+                      }}
+                      className="text-terminal-text/60 hover:text-terminal-green transition-colors p-1 rounded hover:bg-terminal-green/10"
+                      title="View Code"
                     >
                       <Github className="w-5 h-5" />
-                    </a>
-                    <a
-                      href={project.live}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-terminal-text/60 hover:text-terminal-green transition-colors"
-                      onClick={(e) => e.stopPropagation()}
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleLiveDemo(project);
+                      }}
+                      className="text-terminal-text/60 hover:text-terminal-green transition-colors p-1 rounded hover:bg-terminal-green/10"
+                      title="Live Demo"
                     >
                       <ExternalLink className="w-5 h-5" />
-                    </a>
+                    </button>
                   </div>
                 </div>
                 
                 <p className="text-terminal-text/70 mb-4">{project.description}</p>
                 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mb-4">
                   {project.technologies.map((tech) => (
                     <span
                       key={tech}
@@ -305,6 +317,28 @@ async def process_scraped_data(data_batch):
                       {tech}
                     </span>
                   ))}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex space-x-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLiveDemo(project);
+                    }}
+                    className="flex-1 bg-terminal-green/10 hover:bg-terminal-green/20 text-terminal-green py-2 px-4 rounded text-sm border border-terminal-green/30 hover:border-terminal-green/50 transition-all duration-200"
+                  >
+                    Live Demo
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewCode(project);
+                    }}
+                    className="flex-1 bg-terminal-blue/10 hover:bg-terminal-blue/20 text-terminal-blue py-2 px-4 rounded text-sm border border-terminal-blue/30 hover:border-terminal-blue/50 transition-all duration-200"
+                  >
+                    View Code
+                  </button>
                 </div>
               </div>
             ))}

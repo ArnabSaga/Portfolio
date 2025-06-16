@@ -61,6 +61,30 @@ const Services = () => {
     }
   ];
 
+  const handleGetQuote = () => {
+    // Navigate to contact section
+    const contactSection = document.querySelector('[data-section="contact"]');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Fallback: trigger contact section if using navigation
+      const event = new CustomEvent('navigate', { detail: 'contact' });
+      window.dispatchEvent(event);
+    }
+  };
+
+  const handleViewPortfolio = () => {
+    // Navigate to portfolio section
+    const portfolioSection = document.querySelector('[data-section="portfolio"]');
+    if (portfolioSection) {
+      portfolioSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Fallback: trigger portfolio section if using navigation
+      const event = new CustomEvent('navigate', { detail: 'portfolio' });
+      window.dispatchEvent(event);
+    }
+  };
+
   return (
     <section className="min-h-screen py-20 px-6">
       <div className="max-w-7xl mx-auto">
@@ -141,10 +165,16 @@ const Services = () => {
             </span>
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-terminal-green text-terminal-bg px-8 py-3 rounded-lg font-semibold hover:bg-terminal-green/90 transition-all duration-300 hover:shadow-lg hover:shadow-terminal-green/30">
+            <button 
+              onClick={handleGetQuote}
+              className="bg-terminal-green text-terminal-bg px-8 py-3 rounded-lg font-semibold hover:bg-terminal-green/90 transition-all duration-300 hover:shadow-lg hover:shadow-terminal-green/30 cursor-pointer"
+            >
               <span className="syntax-function">getQuote</span>()
             </button>
-            <button className="border border-terminal-green text-terminal-green px-8 py-3 rounded-lg font-semibold hover:bg-terminal-green/10 transition-all duration-300">
+            <button 
+              onClick={handleViewPortfolio}
+              className="border border-terminal-green text-terminal-green px-8 py-3 rounded-lg font-semibold hover:bg-terminal-green/10 transition-all duration-300 cursor-pointer"
+            >
               <span className="syntax-function">viewPortfolio</span>()
             </button>
           </div>
