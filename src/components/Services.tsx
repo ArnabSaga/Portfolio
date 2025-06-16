@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const Services = () => {
@@ -85,6 +84,25 @@ const Services = () => {
     }
   };
 
+  const handleLearnMore = (serviceName: string) => {
+    // Navigate to contact section with service context
+    const contactSection = document.querySelector('[data-section="contact"]');
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth' });
+      // Set a timeout to focus on the message field and pre-fill it
+      setTimeout(() => {
+        const messageField = document.querySelector('textarea[placeholder*="message"]') as HTMLTextAreaElement;
+        if (messageField) {
+          messageField.focus();
+          messageField.value = `I'm interested in learning more about ${serviceName}. Could you please provide more details?`;
+        }
+      }, 500);
+    } else {
+      const event = new CustomEvent('navigate', { detail: 'contact' });
+      window.dispatchEvent(event);
+    }
+  };
+
   return (
     <section className="min-h-screen py-20 px-6">
       <div className="max-w-7xl mx-auto">
@@ -141,9 +159,12 @@ const Services = () => {
                 <p className="text-terminal-yellow text-sm">]</p>
               </div>
 
-              {/* Hover Effect */}
+              {/* Learn More Button - Fixed positioning and functionality */}
               <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <button className="w-full bg-terminal-green/10 hover:bg-terminal-green/20 text-terminal-green py-2 px-4 rounded text-sm border border-terminal-green/30 hover:border-terminal-green/50 transition-all duration-200">
+                <button 
+                  onClick={() => handleLearnMore(service.name)}
+                  className="w-full bg-terminal-green/10 hover:bg-terminal-green/20 text-terminal-green py-2 px-4 rounded text-sm border border-terminal-green/30 hover:border-terminal-green/50 transition-all duration-200 cursor-pointer"
+                >
                   <span className="syntax-function">learnMore</span>()
                 </button>
               </div>
