@@ -61,7 +61,10 @@ const ThemeSwitcher = () => {
 
   const applyTheme = (themeKey: string) => {
     const theme = themes[themeKey as keyof typeof themes];
-    if (!theme) return;
+    if (!theme) {
+      console.error('Theme not found:', themeKey);
+      return;
+    }
     
     const root = document.documentElement;
     
@@ -110,8 +113,28 @@ const ThemeSwitcher = () => {
     root.style.setProperty('--secondary', hexToHsl(theme.secondary));
     root.style.setProperty('--accent', hexToHsl(theme.accent));
     
+    // Also update primary-foreground, secondary-foreground, etc.
+    root.style.setProperty('--primary-foreground', hexToHsl(theme.bg));
+    root.style.setProperty('--secondary-foreground', hexToHsl(theme.text));
+    root.style.setProperty('--accent-foreground', hexToHsl(theme.bg));
+    root.style.setProperty('--muted', hexToHsl(theme.border));
+    root.style.setProperty('--muted-foreground', hexToHsl(theme.text));
+    root.style.setProperty('--card', hexToHsl(theme.bg));
+    root.style.setProperty('--card-foreground', hexToHsl(theme.text));
+    root.style.setProperty('--popover', hexToHsl(theme.bg));
+    root.style.setProperty('--popover-foreground', hexToHsl(theme.text));
+    
     // Update body background to match theme
     document.body.style.background = `linear-gradient(135deg, ${theme.bg} 0%, ${theme.border} 100%)`;
+    document.body.style.color = theme.text;
+    
+    // Force immediate style updates
+    document.body.style.setProperty('--current-theme-primary', theme.primary);
+    document.body.style.setProperty('--current-theme-secondary', theme.secondary);
+    document.body.style.setProperty('--current-theme-accent', theme.accent);
+    document.body.style.setProperty('--current-theme-bg', theme.bg);
+    document.body.style.setProperty('--current-theme-border', theme.border);
+    document.body.style.setProperty('--current-theme-text', theme.text);
     
     setCurrentTheme(themeKey);
     localStorage.setItem('preferred-theme', themeKey);
@@ -120,6 +143,9 @@ const ThemeSwitcher = () => {
     
     // Force a re-render by triggering a custom event
     window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: themeKey } }));
+    
+    // Force browser to recalculate styles
+    document.body.offsetHeight;
   };
 
   useEffect(() => {
@@ -143,12 +169,11 @@ const ThemeSwitcher = () => {
     <div className="fixed top-20 right-6 z-50">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-3 rounded-lg transition-all duration-300 backdrop-blur-md shadow-lg hover:shadow-xl"
+        className="p-3 rounded-lg transition-all duration-300 backdrop-blur-md shadow-lg hover:shadow-xl border"
         style={{
           backgroundColor: `${themes[currentTheme as keyof typeof themes].bg}90`,
           borderColor: themes[currentTheme as keyof typeof themes].border,
-          color: themes[currentTheme as keyof typeof themes].primary,
-          border: `1px solid ${themes[currentTheme as keyof typeof themes].border}`
+          color: themes[currentTheme as keyof typeof themes].primary
         }}
         title="Change Theme"
       >
@@ -157,11 +182,10 @@ const ThemeSwitcher = () => {
 
       {isOpen && (
         <div 
-          className="absolute top-full right-0 mt-2 w-72 rounded-lg overflow-hidden animate-fade-in backdrop-blur-md shadow-xl"
+          className="absolute top-full right-0 mt-2 w-72 rounded-lg overflow-hidden animate-fade-in backdrop-blur-md shadow-xl border"
           style={{
             backgroundColor: `${themes[currentTheme as keyof typeof themes].bg}95`,
-            borderColor: themes[currentTheme as keyof typeof themes].border,
-            border: `1px solid ${themes[currentTheme as keyof typeof themes].border}`
+            borderColor: themes[currentTheme as keyof typeof themes].border
           }}
         >
           <div 
@@ -184,36 +208,40 @@ const ThemeSwitcher = () => {
               <button
                 key={key}
                 onClick={() => handleThemeSelect(key)}
-                className="w-full p-3 rounded-lg transition-colors text-left group hover:bg-opacity-30"
+                className="w-full p-3 rounded-lg transition-all duration-200 text-left group"
                 style={{
-                  backgroundColor: currentTheme === key ? `${theme.border}30` : 'transparent'
+                  backgroundColor: currentTheme === key ? `${theme.border}40` : 'transparent',
+                  borderColor: currentTheme === key ? theme.primary : 'transparent',
+                  border: currentTheme === key ? `1px solid ${theme.primary}40` : '1px solid transparent'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = `${theme.border}30`;
+                  e.currentTarget.style.transform = 'scale(1.02)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = currentTheme === key ? `${theme.border}30` : 'transparent';
+                  e.currentTarget.style.backgroundColor = currentTheme === key ? `${theme.border}40` : 'transparent';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="flex space-x-1">
                       <div 
-                        className="w-3 h-3 rounded-full border border-opacity-30" 
+                        className="w-3 h-3 rounded-full border border-opacity-30 shadow-sm" 
                         style={{ 
                           backgroundColor: theme.primary,
                           borderColor: `${themes[currentTheme as keyof typeof themes].border}30`
                         }}
                       />
                       <div 
-                        className="w-3 h-3 rounded-full border border-opacity-30" 
+                        className="w-3 h-3 rounded-full border border-opacity-30 shadow-sm" 
                         style={{ 
                           backgroundColor: theme.secondary,
                           borderColor: `${themes[currentTheme as keyof typeof themes].border}30`
                         }}
                       />
                       <div 
-                        className="w-3 h-3 rounded-full border border-opacity-30" 
+                        className="w-3 h-3 rounded-full border border-opacity-30 shadow-sm" 
                         style={{ 
                           backgroundColor: theme.accent,
                           borderColor: `${themes[currentTheme as keyof typeof themes].border}30`
@@ -222,13 +250,13 @@ const ThemeSwitcher = () => {
                     </div>
                     <div>
                       <div 
-                        className="font-mono text-sm"
+                        className="font-mono text-sm font-medium"
                         style={{ color: themes[currentTheme as keyof typeof themes].text }}
                       >
                         {theme.name}
                       </div>
                       <div 
-                        className="text-xs opacity-60"
+                        className="text-xs opacity-70"
                         style={{ color: themes[currentTheme as keyof typeof themes].text }}
                       >
                         {theme.description}
@@ -238,7 +266,7 @@ const ThemeSwitcher = () => {
                   
                   {currentTheme === key && (
                     <Check 
-                      className="w-4 h-4" 
+                      className="w-4 h-4 animate-fade-in" 
                       style={{ color: themes[currentTheme as keyof typeof themes].primary }}
                     />
                   )}
