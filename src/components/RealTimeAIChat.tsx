@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, MessageSquare, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
 }
@@ -151,11 +152,15 @@ const RealTimeAIChat = () => {
     }
   };
 
+  const handleProviderChange = (value: string) => {
+    setSelectedProvider(value as 'openai' | 'anthropic' | 'google');
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Provider and Model Selection */}
       <div className="flex items-center space-x-4 p-4 border-b border-terminal-border/40 bg-terminal-bg/80 backdrop-blur-md">
-        <Select value={selectedProvider} onValueChange={setSelectedProvider}>
+        <Select value={selectedProvider} onValueChange={handleProviderChange}>
           <SelectTrigger className="w-[180px] text-sm">
             <SelectValue placeholder="Select Provider" />
           </SelectTrigger>
