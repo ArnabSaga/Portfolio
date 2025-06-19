@@ -1,8 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
 import { Cloud, Sun, CloudRain, CloudSnow, Wind, Thermometer, Eye, Droplets, MapPin, Clock, Wifi, Zap, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
 interface WeatherData {
   temperature: number;
   condition: string;
@@ -15,7 +13,6 @@ interface WeatherData {
   uvIndex: number;
   pressure: number;
 }
-
 interface LocationData {
   city: string;
   region: string;
@@ -24,7 +21,6 @@ interface LocationData {
   lat: number;
   lon: number;
 }
-
 const PopupWeatherWidget = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [location, setLocation] = useState<LocationData | null>(null);
@@ -32,20 +28,18 @@ const PopupWeatherWidget = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isOpen, setIsOpen] = useState(false);
-
   const fetchLocationByIP = async () => {
     try {
       console.log('Attempting to detect location...');
-      
       if (navigator.geolocation) {
         try {
           const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 5000
+            });
           });
-          
           const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`);
           const data = await response.json();
-          
           return {
             city: data.city || data.locality || 'Unknown City',
             region: data.principalSubdivision || '',
@@ -58,14 +52,11 @@ const PopupWeatherWidget = () => {
           console.log('Browser geolocation failed:', geoError);
         }
       }
-      
       const ipResponse = await fetch('https://api.ipify.org?format=json');
       const ipData = await ipResponse.json();
-      
       try {
         const locationResponse = await fetch(`https://freeipapi.com/api/json/${ipData.ip}`);
         const locationData = await locationResponse.json();
-        
         if (locationData && locationData.cityName) {
           return {
             city: locationData.cityName || 'Unknown',
@@ -79,10 +70,8 @@ const PopupWeatherWidget = () => {
       } catch (ipLocationError) {
         console.log('IP location service failed:', ipLocationError);
       }
-      
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const cityFromTimezone = timezone.split('/').pop()?.replace(/_/g, ' ') || 'Unknown';
-      
       return {
         city: cityFromTimezone,
         region: '',
@@ -91,7 +80,6 @@ const PopupWeatherWidget = () => {
         lat: 0,
         lon: 0
       };
-      
     } catch (error) {
       return {
         city: 'San Francisco',
@@ -103,51 +91,40 @@ const PopupWeatherWidget = () => {
       };
     }
   };
-
   const generateWeatherFromLocation = (locationData: LocationData): WeatherData => {
     const conditions = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Light Rain', 'Clear'];
     const hour = new Date().getHours();
-    
     let condition = conditions[Math.floor(Math.random() * conditions.length)];
     if (hour >= 6 && hour <= 18) {
       condition = Math.random() > 0.3 ? 'Sunny' : 'Partly Cloudy';
     } else {
       condition = Math.random() > 0.5 ? 'Clear' : 'Partly Cloudy';
     }
-    
     const baseTemp = Math.max(5, Math.min(35, 25 - Math.abs(locationData.lat) * 0.5 + Math.random() * 10));
-    
     return {
       temperature: Math.round(baseTemp),
       condition: condition,
       humidity: Math.round(40 + Math.random() * 40),
       windSpeed: Math.round(5 + Math.random() * 20),
       visibility: Math.round(8 + Math.random() * 7),
-      location: locationData.city && locationData.region ? 
-        `${locationData.city}, ${locationData.region}` : 
-        locationData.city || 'Unknown Location',
+      location: locationData.city && locationData.region ? `${locationData.city}, ${locationData.region}` : locationData.city || 'Unknown Location',
       icon: condition.toLowerCase().replace(' ', '-'),
       feelsLike: Math.round(baseTemp + (Math.random() - 0.5) * 4),
       uvIndex: Math.round(Math.random() * 10),
       pressure: Math.round(1000 + Math.random() * 50)
     };
   };
-
   useEffect(() => {
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
-
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-      
       try {
         const locationData = await fetchLocationByIP();
         setLocation(locationData);
-        
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
         const weatherData = generateWeatherFromLocation(locationData);
         setWeather(weatherData);
       } catch (err) {
@@ -157,16 +134,13 @@ const PopupWeatherWidget = () => {
         setLoading(false);
       }
     };
-
     fetchData();
     const weatherInterval = setInterval(fetchData, 600000);
-    
     return () => {
       clearInterval(timeInterval);
       clearInterval(weatherInterval);
     };
   }, []);
-
   const getWeatherIcon = (condition: string) => {
     const iconClass = "w-5 h-5";
     switch (condition.toLowerCase()) {
@@ -187,11 +161,10 @@ const PopupWeatherWidget = () => {
         return <Cloud className={`${iconClass} text-gray-300`} />;
     }
   };
-
   const formatTime = (date: Date) => {
     if (location?.timezone) {
       try {
-        return date.toLocaleTimeString('en-US', { 
+        return date.toLocaleTimeString('en-US', {
           timeZone: location.timezone,
           hour12: false,
           hour: '2-digit',
@@ -201,41 +174,33 @@ const PopupWeatherWidget = () => {
         console.log('Timezone error:', e);
       }
     }
-    return date.toLocaleTimeString('en-US', { 
+    return date.toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit'
     });
   };
-
   if (loading) {
-    return (
-      <div className="fixed top-4 right-4 z-50">
+    return <div className="fixed top-4 right-4 z-50">
         <div className="bg-terminal-bg/90 border border-terminal-green/30 rounded-lg p-3 backdrop-blur-md">
           <div className="flex items-center space-x-2">
             <div className="animate-spin w-4 h-4 border-2 border-terminal-green/20 border-t-terminal-green rounded-full"></div>
             <span className="text-terminal-green font-mono text-sm">Loading...</span>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (error || !weather) {
-    return (
-      <div className="fixed top-4 right-4 z-50">
+    return <div className="fixed top-4 right-4 z-50">
         <div className="bg-terminal-bg/90 border border-red-400/50 rounded-lg p-3 backdrop-blur-md">
           <span className="text-red-400 font-mono text-sm">Location Failed</span>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="fixed top-4 right-4 z-50">
+  return <div className="fixed top-4 right-4 z-50">
       <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
-          <button className="bg-terminal-bg/90 border border-terminal-green/30 rounded-lg p-3 backdrop-blur-md hover:border-terminal-green/50 transition-all duration-300 hover:scale-105">
+          <button className="bg-terminal-bg/90 border border-terminal-green/30 rounded-lg p-3 backdrop-blur-md hover:border-terminal-green/50 transition-all duration-300 hover:scale-105 my-[12px]">
             <div className="flex items-center space-x-2">
               {getWeatherIcon(weather.condition)}
               <span className="text-terminal-green font-mono font-bold">{weather.temperature}°</span>
@@ -298,8 +263,6 @@ const PopupWeatherWidget = () => {
           </div>
         </PopoverContent>
       </Popover>
-    </div>
-  );
+    </div>;
 };
-
 export default PopupWeatherWidget;
