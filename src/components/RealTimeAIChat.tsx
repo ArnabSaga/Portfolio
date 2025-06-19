@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Settings, Zap, Brain, Sparkles, Copy, Trash2, RefreshCw, Cpu } from 'lucide-react';
+import { Send, Bot, User, Settings, Zap, Brain, Sparkles, Copy, Trash2, RefreshCw, Cpu, MapPin } from 'lucide-react';
+import APIKeyManager from './APIKeyManager';
 
 interface Message {
   id: string;
@@ -20,13 +21,21 @@ interface AIProvider {
 }
 
 const RealTimeAIChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 'welcome',
+      content: "👋 Hello! I'm your AI assistant powered by multiple AI providers including OpenAI GPT-4, Anthropic Claude, and Groq. I can help you with coding, creative writing, analysis, and general questions. How can I assist you today?",
+      role: 'assistant',
+      timestamp: new Date()
+    }
+  ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState('openai');
-  const [selectedModel, setSelectedModel] = useState('gpt-4');
+  const [selectedModel, setSelectedModel] = useState('gpt-4o');
   const [apiKeys, setApiKeys] = useState<{ [key: string]: string }>({});
   const [showSettings, setShowSettings] = useState(false);
+  const [userLocation, setUserLocation] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const providers: AIProvider[] = [
@@ -34,7 +43,7 @@ const RealTimeAIChat = () => {
       id: 'openai',
       name: 'OpenAI',
       icon: <Zap className="w-4 h-4" />,
-      models: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+      models: ['gpt-4o', 'gpt-4o-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
       endpoint: 'https://api.openai.com/v1/chat/completions',
       requiresKey: true
     },
@@ -42,7 +51,7 @@ const RealTimeAIChat = () => {
       id: 'anthropic',
       name: 'Anthropic',
       icon: <Brain className="w-4 h-4" />,
-      models: ['claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'],
+      models: ['claude-3-5-sonnet-20241022', 'claude-3-opus-20240229', 'claude-3-haiku-20240307'],
       endpoint: 'https://api.anthropic.com/v1/messages',
       requiresKey: true
     },
@@ -50,7 +59,7 @@ const RealTimeAIChat = () => {
       id: 'groq',
       name: 'Groq',
       icon: <Cpu className="w-4 h-4" />,
-      models: ['mixtral-8x7b-32768', 'llama2-70b-4096'],
+      models: ['llama-3.1-70b-versatile', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
       endpoint: 'https://api.groq.com/openai/v1/chat/completions',
       requiresKey: true
     }
@@ -62,6 +71,20 @@ const RealTimeAIChat = () => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    getCurrentLocation();
+  }, []);
+
+  const getCurrentLocation = async () => {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      setUserLocation(data.ip);
+    } catch (error) {
+      console.log('Could not fetch location');
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -71,7 +94,12 @@ const RealTimeAIChat = () => {
   };
 
   const clearChat = () => {
-    setMessages([]);
+    setMessages([{
+      id: 'welcome',
+      content: "👋 Hello! I'm your AI assistant. How can I help you today?",
+      role: 'assistant',
+      timestamp: new Date()
+    }]);
   };
 
   const callOpenAI = async (messages: Message[]) => {
@@ -88,12 +116,14 @@ const RealTimeAIChat = () => {
           content: msg.content
         })),
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 2000,
+        stream: false
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`OpenAI API error: ${response.statusText}. ${errorData?.error?.message || ''}`);
     }
 
     const data = await response.json();
@@ -110,8 +140,8 @@ const RealTimeAIChat = () => {
       },
       body: JSON.stringify({
         model: selectedModel,
-        max_tokens: 1000,
-        messages: messages.map(msg => ({
+        max_tokens: 2000,
+        messages: messages.filter(msg => msg.role !== 'system').map(msg => ({
           role: msg.role,
           content: msg.content
         })),
@@ -119,7 +149,8 @@ const RealTimeAIChat = () => {
     });
 
     if (!response.ok) {
-      throw new Error(`Anthropic API error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Anthropic API error: ${response.statusText}. ${errorData?.error?.message || ''}`);
     }
 
     const data = await response.json();
@@ -140,12 +171,13 @@ const RealTimeAIChat = () => {
           content: msg.content
         })),
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 2000,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Groq API error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Groq API error: ${response.statusText}. ${errorData?.error?.message || ''}`);
     }
 
     const data = await response.json();
@@ -203,7 +235,7 @@ const RealTimeAIChat = () => {
       console.error('Error calling AI:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `Sorry, I encountered an error: ${error.message}. Please check your API key and try again.`,
+        content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your API key and try again.`,
         role: 'assistant',
         timestamp: new Date(),
         model: selectedModel
@@ -221,6 +253,10 @@ const RealTimeAIChat = () => {
     }
   };
 
+  const handleKeysUpdate = (keys: { [key: string]: string }) => {
+    setApiKeys(keys);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-gradient-to-br from-[#1e1e1e]/95 to-[#2d2d30]/95 rounded-2xl border border-terminal-border overflow-hidden shadow-2xl backdrop-blur-md">
@@ -232,6 +268,12 @@ const RealTimeAIChat = () => {
               <span className="text-terminal-text font-mono text-sm">{currentProvider?.name}</span>
               <span className="text-terminal-text/60 text-xs">({selectedModel})</span>
             </div>
+            {userLocation && (
+              <div className="flex items-center space-x-1 text-terminal-text/40">
+                <MapPin className="w-3 h-3" />
+                <span className="text-xs font-mono">{userLocation}</span>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center space-x-3">
@@ -259,7 +301,7 @@ const RealTimeAIChat = () => {
         {/* Settings Panel */}
         {showSettings && (
           <div className="p-6 bg-terminal-bg/30 border-b border-terminal-border">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-mono text-terminal-text mb-2">AI Provider</label>
                 <select
@@ -289,38 +331,14 @@ const RealTimeAIChat = () => {
                   ))}
                 </select>
               </div>
-              
-              <div className="md:col-span-2">
-                <label className="block text-sm font-mono text-terminal-text mb-2">
-                  {currentProvider?.name} API Key
-                </label>
-                <input
-                  type="password"
-                  value={apiKeys[selectedProvider] || ''}
-                  onChange={(e) => setApiKeys(prev => ({ ...prev, [selectedProvider]: e.target.value }))}
-                  placeholder={`Enter your ${currentProvider?.name} API key`}
-                  className="w-full bg-terminal-bg border border-terminal-border rounded-lg px-3 py-2 text-terminal-text font-mono"
-                />
-                <p className="text-xs text-terminal-text/60 mt-1 font-mono">
-                  Your API key is stored locally and never sent to our servers
-                </p>
-              </div>
             </div>
+            
+            <APIKeyManager onKeysUpdate={handleKeysUpdate} initialKeys={apiKeys} />
           </div>
         )}
 
         {/* Messages */}
         <div className="h-[500px] overflow-y-auto p-6 space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center py-12">
-              <Sparkles className="w-12 h-12 text-terminal-green mx-auto mb-4 animate-pulse" />
-              <h3 className="text-lg font-mono text-terminal-text mb-2">Real-Time AI Assistant</h3>
-              <p className="text-terminal-text/60 font-mono text-sm">
-                Start a conversation with {currentProvider?.name}. Configure your API key in settings above.
-              </p>
-            </div>
-          )}
-
           {messages.map((message) => (
             <div
               key={message.id}
@@ -337,7 +355,9 @@ const RealTimeAIChat = () => {
                   <div className="flex items-center space-x-2 mb-2">
                     <Bot className="w-4 h-4 text-terminal-green" />
                     <span className="text-xs text-terminal-green font-mono">{currentProvider?.name}</span>
-                    <span className="text-xs text-terminal-text/40 font-mono">({message.model})</span>
+                    {message.model && (
+                      <span className="text-xs text-terminal-text/40 font-mono">({message.model})</span>
+                    )}
                   </div>
                 )}
                 
@@ -394,7 +414,7 @@ const RealTimeAIChat = () => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Message the AI assistant..."
+                placeholder="Ask me anything... I can help with coding, writing, analysis, and more!"
                 className="flex-1 bg-transparent px-4 py-3 text-terminal-text placeholder-terminal-text/50 outline-none font-mono resize-none min-h-[40px] max-h-[120px]"
                 disabled={isLoading}
                 rows={1}

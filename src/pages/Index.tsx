@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
 import Hero from '../components/Hero';
 import About from '../components/About';
@@ -32,8 +33,12 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
   const [isLoading, setIsLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Import navigation handler
+    import('../utils/navigationHandler');
+
     // Smooth scrolling
     const style = document.createElement('style');
     style.textContent = `
@@ -49,13 +54,26 @@ const Index = () => {
       }
     };
 
+    // Listen for toast events
+    const handleToast = (event: any) => {
+      if (event.detail) {
+        toast({
+          title: event.detail.title,
+          description: event.detail.description,
+          variant: event.detail.variant || 'default'
+        });
+      }
+    };
+
     window.addEventListener('navigate', handleNavigation);
+    window.addEventListener('show-toast', handleToast);
 
     return () => {
       document.head.removeChild(style);
       window.removeEventListener('navigate', handleNavigation);
+      window.removeEventListener('show-toast', handleToast);
     };
-  }, []);
+  }, [toast]);
 
   const handleLoadingComplete = () => {
     setIsLoading(false);
@@ -278,7 +296,7 @@ const Index = () => {
                 <span className="syntax-variable">email</span>
               </a>
               <a
-                href="https://github.com/nodexStation"
+                href="https://github.com/usuf93817"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-terminal-text/60 hover:text-terminal-green transition-colors font-mono text-sm hover:scale-110 transform duration-200"
