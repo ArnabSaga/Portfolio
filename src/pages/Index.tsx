@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -23,7 +22,7 @@ import ProjectCarousel from '../components/ProjectCarousel';
 import RealTimeContactForm from '../components/RealTimeContactForm';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import SkillQuiz from '../components/SkillQuiz';
-import PopupWeatherWidget from '../components/PopupWeatherWidget';
+import WeatherWidget from '../components/WeatherWidget';
 import GitHubStats from '../components/GitHubStats';
 import GameSection from '../components/GameSection';
 import FuturisticAIChat from '../components/FuturisticAIChat';
@@ -40,20 +39,11 @@ const Index = () => {
     // Import navigation handler
     import('../utils/navigationHandler');
 
-    // Enhanced smooth scrolling with better performance
+    // Smooth scrolling
     const style = document.createElement('style');
     style.textContent = `
-      html { 
-        scroll-behavior: smooth;
-        scroll-padding-top: 2rem;
-      }
-      body { 
-        cursor: none;
-        overflow-x: hidden;
-      }
-      * {
-        transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
-      }
+      html { scroll-behavior: smooth; }
+      body { cursor: none; }
     `;
     document.head.appendChild(style);
 
@@ -79,9 +69,7 @@ const Index = () => {
     window.addEventListener('show-toast', handleToast);
 
     return () => {
-      if (document.head.contains(style)) {
-        document.head.removeChild(style);
-      }
+      document.head.removeChild(style);
       window.removeEventListener('navigate', handleNavigation);
       window.removeEventListener('show-toast', handleToast);
     };
@@ -242,7 +230,7 @@ const Index = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-terminal-bg text-terminal-text transition-all duration-1000 ease-out ${
+    <div className={`min-h-screen bg-terminal-bg text-terminal-text transition-opacity duration-1000 ${
       isVisible ? 'opacity-100' : 'opacity-0'
     }`}>
       {/* Advanced Features */}
@@ -250,7 +238,7 @@ const Index = () => {
       <ParticleBackground />
       <FloatingNav activeSection={activeSection} setActiveSection={setActiveSection} />
       <ThemeSwitcher />
-      <PopupWeatherWidget />
+      <WeatherWidget />
       <SocialSidebar />
       
       {/* Main Header */}
