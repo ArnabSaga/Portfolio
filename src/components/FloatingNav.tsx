@@ -9,6 +9,7 @@ interface FloatingNavProps {
 
 const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSection }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -22,12 +23,20 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
   ];
 
   useEffect(() => {
+    let scrollTimeout: NodeJS.Timeout;
+
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollTop / docHeight;
       setScrollProgress(progress);
       setIsVisible(scrollTop > 200);
+      setIsScrolling(true);
+      
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        setIsScrolling(false);
+      }, 1200); // Hide 1.2 seconds after scroll stops
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -36,15 +45,17 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
 
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
+      clearTimeout(scrollTimeout);
     };
   }, []);
 
   return (
-    <div className={`fixed right-6 top-1/2 transform -translate-y-1/2 z-50 transition-all duration-500 ${
-      isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
+    <div className={`fixed right-6 top-1/2 transform -translate-y-1/2 z-50 transition-all duration-300 ${
+      isVisible && isScrolling ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
     }`}>
       {/* Holographic Progress Bar */}
       <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-transparent via-terminal-border to-transparent rounded-full overflow-hidden">
@@ -82,7 +93,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
             className={`group relative w-14 h-14 rounded-xl border-2 transition-all duration-300 hover:scale-110 backdrop-blur-md overflow-hidden ${
               activeSection === item.id
                 ? 'bg-gradient-to-br from-terminal-green/20 to-terminal-blue/20 border-terminal-green shadow-lg shadow-terminal-green/30'
-                : 'bg-terminal-bg/10 border-terminal-border/30 hover:border-terminal-green/50 hover:bg-gradient-to-br hover:from-terminal-green/5 hover:to-terminal-blue/5'
+                : 'bg-terminal-bg/80 border-terminal-border/30 hover:border-terminal-green/50 hover:bg-gradient-to-br hover:from-terminal-green/5 hover:to-terminal-blue/5'
             }`}
             style={{ 
               animationDelay: `${index * 0.1}s`,

@@ -4,6 +4,7 @@ import { Github, Facebook, Instagram, Mail } from 'lucide-react';
 
 const SocialSidebar = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const socialLinks = [
@@ -46,8 +47,16 @@ const SocialSidebar = () => {
   ];
 
   useEffect(() => {
+    let scrollTimeout: NodeJS.Timeout;
+
     const handleScroll = () => {
       setIsVisible(window.scrollY > 100);
+      setIsScrolling(true);
+      
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        setIsScrolling(false);
+      }, 1000); // Hide 1 second after scroll stops
     };
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -56,15 +65,17 @@ const SocialSidebar = () => {
 
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
+      clearTimeout(scrollTimeout);
     };
   }, []);
 
   return (
-    <div className={`fixed left-4 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ${
-      isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'
+    <div className={`fixed left-4 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-300 ${
+      isVisible && isScrolling ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'
     }`}>
       {/* Connection Lines */}
       <div className="absolute inset-0 pointer-events-none">
@@ -87,7 +98,7 @@ const SocialSidebar = () => {
               href={social.url}
               target={social.id !== 'email' ? '_blank' : undefined}
               rel={social.id !== 'email' ? 'noopener noreferrer' : undefined}
-              className={`block w-12 h-12 bg-terminal-bg/20 border border-terminal-border/30 rounded-lg backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-terminal-green/50 group ${social.hoverColor}`}
+              className={`block w-12 h-12 bg-terminal-bg/80 border border-terminal-border/30 rounded-lg backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-terminal-green/50 group ${social.hoverColor}`}
               data-magnetic
               data-cursor-text={social.description}
             >
@@ -133,7 +144,7 @@ const SocialSidebar = () => {
 
       {/* Status Indicator */}
       <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2">
-        <div className="bg-terminal-bg/20 border border-terminal-border/30 rounded-full px-2 py-1 backdrop-blur-md">
+        <div className="bg-terminal-bg/80 border border-terminal-border/30 rounded-full px-2 py-1 backdrop-blur-md">
           <div className="flex items-center space-x-1">
             <div className="w-1 h-1 bg-terminal-green rounded-full animate-pulse" />
             <span className="text-xs font-mono text-terminal-text/60">ONLINE</span>

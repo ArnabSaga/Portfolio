@@ -70,7 +70,7 @@ const ThemeSwitcher = () => {
     
     console.log('Applying theme:', themeKey, theme);
     
-    // Update terminal CSS custom properties with proper hex values
+    // Update terminal CSS custom properties
     root.style.setProperty('--terminal-green', theme.primary);
     root.style.setProperty('--terminal-blue', theme.secondary);
     root.style.setProperty('--terminal-yellow', theme.accent);
@@ -105,15 +105,13 @@ const ThemeSwitcher = () => {
       return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
     };
     
-    // Update Tailwind CSS variables for shadcn components
+    // Update Tailwind CSS variables comprehensively
     root.style.setProperty('--background', hexToHsl(theme.bg));
     root.style.setProperty('--foreground', hexToHsl(theme.text));
     root.style.setProperty('--border', hexToHsl(theme.border));
     root.style.setProperty('--primary', hexToHsl(theme.primary));
     root.style.setProperty('--secondary', hexToHsl(theme.secondary));
     root.style.setProperty('--accent', hexToHsl(theme.accent));
-    
-    // Also update primary-foreground, secondary-foreground, etc.
     root.style.setProperty('--primary-foreground', hexToHsl(theme.bg));
     root.style.setProperty('--secondary-foreground', hexToHsl(theme.text));
     root.style.setProperty('--accent-foreground', hexToHsl(theme.bg));
@@ -124,28 +122,41 @@ const ThemeSwitcher = () => {
     root.style.setProperty('--popover', hexToHsl(theme.bg));
     root.style.setProperty('--popover-foreground', hexToHsl(theme.text));
     
-    // Update body background to match theme
-    document.body.style.background = `linear-gradient(135deg, ${theme.bg} 0%, ${theme.border} 100%)`;
+    // Force immediate visual updates
+    document.body.style.backgroundColor = theme.bg;
     document.body.style.color = theme.text;
+    document.body.className = document.body.className.replace(/bg-\w+-\w+/g, '');
+    document.body.className = document.body.className.replace(/text-\w+-\w+/g, '');
     
-    // Force immediate style updates
-    document.body.style.setProperty('--current-theme-primary', theme.primary);
-    document.body.style.setProperty('--current-theme-secondary', theme.secondary);
-    document.body.style.setProperty('--current-theme-accent', theme.accent);
-    document.body.style.setProperty('--current-theme-bg', theme.bg);
-    document.body.style.setProperty('--current-theme-border', theme.border);
-    document.body.style.setProperty('--current-theme-text', theme.text);
+    // Apply theme to all elements with terminal colors
+    const updateElements = (selector: string, property: string, value: string) => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach((el) => {
+        (el as HTMLElement).style.setProperty(property, value);
+      });
+    };
+    
+    // Update common terminal color classes
+    updateElements('.text-terminal-green', 'color', theme.primary);
+    updateElements('.text-terminal-blue', 'color', theme.secondary);
+    updateElements('.text-terminal-yellow', 'color', theme.accent);
+    updateElements('.border-terminal-green', 'border-color', theme.primary);
+    updateElements('.border-terminal-blue', 'border-color', theme.secondary);
+    updateElements('.bg-terminal-bg', 'background-color', theme.bg);
     
     setCurrentTheme(themeKey);
     localStorage.setItem('preferred-theme', themeKey);
     
-    console.log('Theme applied successfully:', themeKey);
+    // Force complete re-render
+    window.dispatchEvent(new CustomEvent('themeChange', { 
+      detail: { theme: themeKey, colors: theme } 
+    }));
     
-    // Force a re-render by triggering a custom event
-    window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: themeKey } }));
-    
-    // Force browser to recalculate styles
+    // Force browser style recalculation
+    document.documentElement.offsetHeight;
     document.body.offsetHeight;
+    
+    console.log('Theme applied successfully:', themeKey);
   };
 
   useEffect(() => {
@@ -155,7 +166,7 @@ const ThemeSwitcher = () => {
     if (savedTheme && themes[savedTheme as keyof typeof themes]) {
       applyTheme(savedTheme);
     } else {
-      applyTheme('matrix'); // Apply default theme
+      applyTheme('matrix');
     }
   }, []);
 
@@ -169,7 +180,7 @@ const ThemeSwitcher = () => {
     <div className="fixed top-20 right-6 z-50">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-3 rounded-lg transition-all duration-300 backdrop-blur-md shadow-lg hover:shadow-xl border"
+        className="p-3 rounded-lg transition-all duration-300 backdrop-blur-md shadow-lg hover:shadow-xl border hover:scale-105"
         style={{
           backgroundColor: `${themes[currentTheme as keyof typeof themes].bg}90`,
           borderColor: themes[currentTheme as keyof typeof themes].border,
@@ -182,7 +193,7 @@ const ThemeSwitcher = () => {
 
       {isOpen && (
         <div 
-          className="absolute top-full right-0 mt-2 w-72 rounded-lg overflow-hidden animate-fade-in backdrop-blur-md shadow-xl border"
+          className="absolute top-full right-0 mt-2 w-72 rounded-lg overflow-hidden animate-fade-in backdrop-blur-md shadow-2xl border"
           style={{
             backgroundColor: `${themes[currentTheme as keyof typeof themes].bg}95`,
             borderColor: themes[currentTheme as keyof typeof themes].border
@@ -208,7 +219,7 @@ const ThemeSwitcher = () => {
               <button
                 key={key}
                 onClick={() => handleThemeSelect(key)}
-                className="w-full p-3 rounded-lg transition-all duration-200 text-left group"
+                className="w-full p-3 rounded-lg transition-all duration-300 text-left group hover:scale-[1.02]"
                 style={{
                   backgroundColor: currentTheme === key ? `${theme.border}40` : 'transparent',
                   borderColor: currentTheme === key ? theme.primary : 'transparent',
@@ -216,11 +227,9 @@ const ThemeSwitcher = () => {
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = `${theme.border}30`;
-                  e.currentTarget.style.transform = 'scale(1.02)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = currentTheme === key ? `${theme.border}40` : 'transparent';
-                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
                 <div className="flex items-center justify-between">
