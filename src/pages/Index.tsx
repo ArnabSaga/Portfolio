@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -22,12 +23,12 @@ import ProjectCarousel from '../components/ProjectCarousel';
 import RealTimeContactForm from '../components/RealTimeContactForm';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import SkillQuiz from '../components/SkillQuiz';
-import WeatherWidget from '../components/WeatherWidget';
 import GitHubStats from '../components/GitHubStats';
 import GameSection from '../components/GameSection';
 import FuturisticAIChat from '../components/FuturisticAIChat';
 import RealTimeAIChat from '../components/RealTimeAIChat';
 import SocialSidebar from '../components/SocialSidebar';
+import PopupWeatherWidget from '../components/PopupWeatherWidget';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -238,7 +239,7 @@ const Index = () => {
       <ParticleBackground />
       <FloatingNav activeSection={activeSection} setActiveSection={setActiveSection} />
       <ThemeSwitcher />
-      <WeatherWidget />
+      <PopupWeatherWidget />
       <SocialSidebar />
       
       {/* Main Header */}

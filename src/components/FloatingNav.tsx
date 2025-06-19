@@ -10,7 +10,7 @@ interface FloatingNavProps {
 const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSection }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollTimeout, setScrollTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const navItems = [
     { id: 'home', icon: Home, label: 'Home' },
@@ -27,23 +27,38 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const progress = scrollTop / docHeight;
       setScrollProgress(progress);
-      setIsVisible(scrollTop > 200);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      
+      // Show navigation when scrolling
+      if (scrollTop > 200) {
+        setIsVisible(true);
+        
+        // Clear existing timeout
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        
+        // Set new timeout to hide after scrolling stops
+        const newTimeout = setTimeout(() => {
+          setIsVisible(false);
+        }, 3000); // Hide after 3 seconds of no scrolling
+        
+        setScrollTimeout(newTimeout);
+      } else {
+        setIsVisible(false);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
     };
-  }, []);
+  }, [scrollTimeout]);
 
   return (
-    <div className={`fixed right-6 top-1/2 transform -translate-y-1/2 z-50 transition-all duration-500 ${
+    <div className={`fixed right-6 top-1/2 transform -translate-y-1/2 z-50 transition-all duration-700 ease-in-out ${
       isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-20'
     }`}>
       {/* Holographic Progress Bar */}
@@ -55,22 +70,6 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
           <div className="absolute inset-0 bg-gradient-to-b from-terminal-green via-terminal-blue to-terminal-purple animate-pulse opacity-50" />
           <div className="absolute top-0 left-0 w-full h-2 bg-white/50 blur-sm" />
         </div>
-      </div>
-
-      {/* Floating Particles Around Nav */}
-      <div className="absolute inset-0 pointer-events-none">
-        {Array.from({ length: 6 }, (_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-terminal-green rounded-full opacity-60"
-            style={{
-              left: `${20 + Math.sin(Date.now() * 0.001 + i) * 10}px`,
-              top: `${i * 60 + Math.cos(Date.now() * 0.001 + i) * 5}px`,
-              animation: `particleFloat 3s ease-in-out infinite`,
-              animationDelay: `${i * 0.5}s`
-            }}
-          />
-        ))}
       </div>
 
       {/* Navigation Items */}
@@ -85,8 +84,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
                 : 'bg-terminal-bg/10 border-terminal-border/30 hover:border-terminal-green/50 hover:bg-gradient-to-br hover:from-terminal-green/5 hover:to-terminal-blue/5'
             }`}
             style={{ 
-              animationDelay: `${index * 0.1}s`,
-              transform: `perspective(1000px) rotateX(${(mousePosition.y - window.innerHeight / 2) * 0.01}deg) rotateY(${(mousePosition.x - window.innerWidth / 2) * 0.01}deg)`
+              animationDelay: `${index * 0.1}s`
             }}
           >
             {/* Holographic Scan Line */}

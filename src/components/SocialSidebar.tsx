@@ -4,7 +4,7 @@ import { Github, Facebook, Instagram, Mail } from 'lucide-react';
 
 const SocialSidebar = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [scrollTimeout, setScrollTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const socialLinks = [
     {
@@ -47,30 +47,41 @@ const SocialSidebar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsVisible(window.scrollY > 100);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      const scrollY = window.scrollY;
+      
+      // Show sidebar when scrolling
+      if (scrollY > 100) {
+        setIsVisible(true);
+        
+        // Clear existing timeout
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        
+        // Set new timeout to hide after scrolling stops
+        const newTimeout = setTimeout(() => {
+          setIsVisible(false);
+        }, 2000); // Hide after 2 seconds of no scrolling
+        
+        setScrollTimeout(newTimeout);
+      } else {
+        setIsVisible(false);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('mousemove', handleMouseMove);
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
     };
-  }, []);
+  }, [scrollTimeout]);
 
   return (
-    <div className={`fixed left-4 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-500 ${
+    <div className={`fixed left-4 top-1/2 transform -translate-y-1/2 z-40 transition-all duration-700 ease-in-out ${
       isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-20'
     }`}>
-      {/* Connection Lines */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute left-6 top-0 w-px h-full bg-gradient-to-b from-transparent via-terminal-green/20 to-transparent" />
-      </div>
-
       {/* Social Media Cards */}
       <div className="space-y-4">
         {socialLinks.map((social, index) => (
@@ -78,7 +89,6 @@ const SocialSidebar = () => {
             key={social.id}
             className="group relative"
             style={{
-              transform: `perspective(500px) rotateY(${(mousePosition.x - window.innerWidth / 2) * 0.01}deg)`,
               animationDelay: `${index * 0.1}s`
             }}
           >

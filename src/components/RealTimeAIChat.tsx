@@ -6,7 +6,7 @@ import APIKeyManager from './APIKeyManager';
 interface Message {
   id: string;
   content: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   timestamp: Date;
   model?: string;
 }
@@ -111,7 +111,7 @@ const RealTimeAIChat = () => {
       },
       body: JSON.stringify({
         model: selectedModel,
-        messages: messages.map(msg => ({
+        messages: messages.filter(msg => msg.role !== 'system').map(msg => ({
           role: msg.role,
           content: msg.content
         })),
@@ -166,7 +166,7 @@ const RealTimeAIChat = () => {
       },
       body: JSON.stringify({
         model: selectedModel,
-        messages: messages.map(msg => ({
+        messages: messages.filter(msg => msg.role !== 'system').map(msg => ({
           role: msg.role,
           content: msg.content
         })),
@@ -257,6 +257,12 @@ const RealTimeAIChat = () => {
     setApiKeys(keys);
   };
 
+  const handleProviderChange = (value: string) => {
+    setSelectedProvider(value);
+    const provider = providers.find(p => p.id === value);
+    if (provider) setSelectedModel(provider.models[0]);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-gradient-to-br from-[#1e1e1e]/95 to-[#2d2d30]/95 rounded-2xl border border-terminal-border overflow-hidden shadow-2xl backdrop-blur-md">
@@ -306,11 +312,7 @@ const RealTimeAIChat = () => {
                 <label className="block text-sm font-mono text-terminal-text mb-2">AI Provider</label>
                 <select
                   value={selectedProvider}
-                  onChange={(e) => {
-                    setSelectedProvider(e.target.value);
-                    const provider = providers.find(p => p.id === e.target.value);
-                    if (provider) setSelectedModel(provider.models[0]);
-                  }}
+                  onChange={(e) => handleProviderChange(e.target.value)}
                   className="w-full bg-terminal-bg border border-terminal-border rounded-lg px-3 py-2 text-terminal-text font-mono"
                 >
                   {providers.map(provider => (
