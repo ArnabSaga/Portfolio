@@ -35,7 +35,7 @@ const PopupWeatherWidget = () => {
   }, []);
   return <>
       {/* Weather Button */}
-      <button onClick={() => setIsOpen(true)} title="Check Weather" className="fixed top-6 right-6 z-40 p-3 bg-gradient-to-r from-terminal-green/20 to-terminal-blue/20 border border-terminal-green/30 rounded-xl backdrop-blur-md hover:scale-110 transition-all duration-300 group my-[30px]">
+      <button onClick={() => setIsOpen(true)} title="Check Weather" className="fixed top-6 right-6 z-40 p-3 bg-gradient-to-r from-terminal-green/20 to-terminal-blue/20 border border-terminal-green/30 rounded-xl backdrop-blur-md hover:scale-110 transition-all duration-300 group my-[50px]">
         <WeatherIcon className="w-5 h-5 text-terminal-green group-hover:text-terminal-blue transition-colors" />
         <div className="absolute -top-1 -right-1 w-3 h-3 bg-terminal-green rounded-full animate-pulse" />
       </button>
