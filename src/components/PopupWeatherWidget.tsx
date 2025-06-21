@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Cloud, Sun, CloudRain, Snow, MapPin, Thermometer, Droplets, Wind, X } from 'lucide-react';
+import { Cloud, Sun, CloudRain, Snowflake, MapPin, Thermometer, Droplets, Wind, X } from 'lucide-react';
 
 const PopupWeatherWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +17,7 @@ const PopupWeatherWidget = () => {
     clear: Sun,
     cloudy: Cloud,
     rain: CloudRain,
-    snow: Snow
+    snow: Snowflake
   };
 
   const WeatherIcon = weatherIcons[weather.condition as keyof typeof weatherIcons] || Sun;
