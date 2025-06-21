@@ -167,7 +167,7 @@ const ThemeSwitcher = () => {
       backgroundColor: `${themes[currentTheme as keyof typeof themes].bg}90`,
       borderColor: themes[currentTheme as keyof typeof themes].border,
       color: themes[currentTheme as keyof typeof themes].primary
-    }} title="Change Theme" className="p-3 rounded-lg transition-all duration-300 backdrop-blur-md shadow-lg hover:shadow-xl border my-[30px]">
+    }} title="Change Theme" className="p-3 rounded-lg transition-all duration-300 backdrop-blur-md shadow-lg hover:shadow-xl border my-[50px]">
         <Palette className="w-5 h-5" />
       </button>
 
