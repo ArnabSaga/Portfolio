@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Palette, Check } from 'lucide-react';
 
@@ -68,33 +67,65 @@ const ThemeSwitcher = () => {
 
     console.log('Applying theme:', themeKey, theme);
     const root = document.documentElement;
+    const body = document.body;
 
-    // Update CSS custom properties
-    root.style.setProperty('--terminal-green', theme.primary);
-    root.style.setProperty('--terminal-blue', theme.secondary);
-    root.style.setProperty('--terminal-yellow', theme.accent);
+    // Update CSS custom properties with more comprehensive coverage
     root.style.setProperty('--terminal-bg', theme.bg);
     root.style.setProperty('--terminal-border', theme.border);
     root.style.setProperty('--terminal-text', theme.text);
+    root.style.setProperty('--terminal-green', theme.primary);
+    root.style.setProperty('--terminal-blue', theme.secondary);
+    root.style.setProperty('--terminal-yellow', theme.accent);
     root.style.setProperty('--terminal-red', '#f44747');
     root.style.setProperty('--terminal-purple', '#c586c0');
     root.style.setProperty('--terminal-orange', '#ce9178');
 
-    // Update body background
-    document.body.style.background = `linear-gradient(135deg, ${theme.bg} 0%, ${theme.border} 100%)`;
-    document.body.style.color = theme.text;
+    // Update Tailwind terminal colors in config
+    root.style.setProperty('--tw-terminal-bg', theme.bg);
+    root.style.setProperty('--tw-terminal-border', theme.border);
+    root.style.setProperty('--tw-terminal-text', theme.text);
+    root.style.setProperty('--tw-terminal-green', theme.primary);
+    root.style.setProperty('--tw-terminal-blue', theme.secondary);
+    root.style.setProperty('--tw-terminal-yellow', theme.accent);
 
-    // Force style recalculation
-    document.body.offsetHeight;
+    // Apply background and text colors directly
+    body.style.background = `linear-gradient(135deg, ${theme.bg} 0%, ${theme.border} 100%)`;
+    body.style.color = theme.text;
 
+    // Update all elements that might use these colors
+    const elementsToUpdate = document.querySelectorAll('[class*="terminal-"], [class*="bg-terminal"], [class*="text-terminal"], [class*="border-terminal"]');
+    elementsToUpdate.forEach(el => {
+      const element = el as HTMLElement;
+      element.style.setProperty('--current-bg', theme.bg);
+      element.style.setProperty('--current-border', theme.border);
+      element.style.setProperty('--current-text', theme.text);
+      element.style.setProperty('--current-primary', theme.primary);
+    });
+
+    // Force reflow to ensure styles are applied
+    body.offsetHeight;
+    
+    // Update state and storage
     setCurrentTheme(themeKey);
     localStorage.setItem('preferred-theme', themeKey);
+    
     console.log('Theme applied successfully:', themeKey);
 
-    // Dispatch theme change event
+    // Dispatch custom event for components that need to react to theme changes
     window.dispatchEvent(new CustomEvent('themeChange', {
-      detail: { theme: themeKey }
+      detail: { theme: themeKey, colors: theme }
     }));
+
+    // Apply theme to dynamic elements with a small delay
+    setTimeout(() => {
+      const dynamicElements = document.querySelectorAll('.bg-terminal-bg, .text-terminal-text, .border-terminal-border');
+      dynamicElements.forEach(el => {
+        const element = el as HTMLElement;
+        element.style.backgroundColor = theme.bg;
+        element.style.color = theme.text;
+        element.style.borderColor = theme.border;
+      });
+    }, 100);
   };
 
   useEffect(() => {
@@ -105,6 +136,14 @@ const ThemeSwitcher = () => {
     } else {
       applyTheme('matrix');
     }
+
+    // Listen for theme change events
+    const handleThemeChange = (event: CustomEvent) => {
+      console.log('Theme change event received:', event.detail);
+    };
+
+    window.addEventListener('themeChange', handleThemeChange as EventListener);
+    return () => window.removeEventListener('themeChange', handleThemeChange as EventListener);
   }, []);
 
   const handleThemeSelect = (themeKey: string) => {

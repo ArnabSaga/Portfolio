@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Home, User, Briefcase, FolderOpen, Mail, Bot } from 'lucide-react';
 
@@ -9,6 +8,7 @@ interface FloatingNavProps {
 
 const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSection }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
 
   const navItems = useMemo(() => [
@@ -26,22 +26,51 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
     const progress = Math.min(scrollTop / Math.max(docHeight, 1), 1);
     
     setScrollProgress(progress);
-    setIsVisible(scrollTop > 100);
+    
+    // Show when scrolling starts (after 50px)
+    if (scrollTop > 50) {
+      setIsVisible(true);
+      setIsScrolling(true);
+    } else {
+      setIsVisible(false);
+      setIsScrolling(false);
+    }
   }, []);
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let scrollTimeout: NodeJS.Timeout;
+    let rafId: number;
     
     const throttledHandleScroll = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(handleScroll, 16); // ~60fps
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
+      
+      rafId = requestAnimationFrame(() => {
+        handleScroll();
+        
+        // Clear existing timeout
+        clearTimeout(scrollTimeout);
+        
+        // Hide quickly when scrolling stops (500ms delay)
+        scrollTimeout = setTimeout(() => {
+          setIsScrolling(false);
+          // Keep visible if user is not at top
+          if (window.scrollY <= 50) {
+            setIsVisible(false);
+          }
+        }, 500);
+      });
     };
 
     window.addEventListener('scroll', throttledHandleScroll, { passive: true });
     
     return () => {
       window.removeEventListener('scroll', throttledHandleScroll);
-      clearTimeout(timeoutId);
+      clearTimeout(scrollTimeout);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, [handleScroll]);
 
@@ -50,8 +79,8 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
   }, [setActiveSection]);
 
   return (
-    <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
-      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+    <div className={`fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ease-out ${
+      isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'
     }`}>
       {/* Progress Bar */}
       <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-32 h-0.5 bg-terminal-border/30 rounded-full overflow-hidden">
@@ -63,7 +92,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({ activeSection, setActiveSecti
 
       {/* Navigation Dock */}
       <div className="flex items-center space-x-1 bg-terminal-bg/95 border border-terminal-green/20 rounded-2xl px-3 py-2 backdrop-blur-md shadow-xl">
-        {navItems.map((item, index) => (
+        {navItems.map((item) => (
           <button
             key={item.id}
             onClick={() => handleNavClick(item.id)}
