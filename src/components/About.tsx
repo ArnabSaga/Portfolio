@@ -8,6 +8,7 @@ const About = () => {
       name: 'Fahim Ahmed Asif',
       role: 'Founder',
       email: 'ahmedasif0007@gmail.com',
+      image: '/lovable-uploads/5b09e2a4-c082-45cd-8a51-af73d9b3d9d1.png',
       social: {
         facebook: 'https://www.facebook.com/fahimahmed.asif.14/',
         instagram: 'https://www.instagram.com/faabs__photobin/',
@@ -19,6 +20,7 @@ const About = () => {
     {
       name: 'Nahian Ninad',
       role: 'Managing Director',
+      image: '/placeholder.svg',
       social: {
         facebook: 'https://www.facebook.com/Neucleah',
         instagram: 'https://www.instagram.com/subconscious._.being/'
@@ -30,6 +32,7 @@ const About = () => {
       name: 'Achyuta Arnab Dey',
       role: 'Co-Founder',
       email: 'arnabdey15091@gmail.com',
+      image: '/placeholder.svg',
       social: {
         facebook: 'https://www.facebook.com/avirs.arnab',
         instagram: 'https://www.instagram.com/rz_arnab_/',
@@ -77,99 +80,113 @@ const About = () => {
           {teamMembers.map((member, index) => (
             <div
               key={member.name}
-              className="group bg-terminal-bg/50 rounded-lg border border-terminal-border p-6 hover:border-terminal-green transition-all duration-300 hover:shadow-lg hover:shadow-terminal-green/20"
+              className="group relative bg-gradient-to-br from-terminal-bg/90 to-terminal-bg/60 rounded-xl border border-terminal-border overflow-hidden hover:border-terminal-green transition-all duration-500 hover:shadow-2xl hover:shadow-terminal-green/10 hover:scale-105"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
-              {/* Member Header */}
-              <div className="mb-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-terminal-green to-terminal-blue rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <span className="text-2xl font-bold text-terminal-bg">
-                    {member.name.split(' ').map(n => n[0]).join('')}
-                  </span>
+              {/* Profile Image */}
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-terminal-bg/80 via-transparent to-transparent" />
+                
+                {/* Role Badge */}
+                <div className="absolute top-4 right-4 bg-terminal-green/90 backdrop-blur-md text-terminal-bg px-3 py-1 rounded-full text-sm font-mono font-semibold">
+                  {member.role}
                 </div>
-                <h3 className="text-xl font-semibold text-terminal-text mb-1">
-                  <span className="syntax-variable">{member.name}</span>
+              </div>
+
+              {/* Content */}
+              <div className="p-6">
+                {/* Name */}
+                <h3 className="text-xl font-bold text-terminal-text mb-2 group-hover:text-terminal-green transition-colors duration-300">
+                  {member.name}
                 </h3>
-                <p className="text-terminal-green font-mono text-sm">
-                  <span className="syntax-keyword">role:</span> <span className="syntax-string">"{member.role}"</span>
+
+                {/* Description */}
+                <p className="text-terminal-text/70 text-sm mb-4 leading-relaxed">
+                  {member.description}
                 </p>
-              </div>
 
-              {/* Description */}
-              <p className="text-terminal-text/80 mb-4 text-sm">
-                <span className="syntax-comment">// {member.description}</span>
-              </p>
-
-              {/* Skills */}
-              <div className="mb-4">
-                <p className="text-terminal-yellow text-sm mb-2">
-                  <span className="syntax-keyword">skills</span>: [
-                </p>
-                <div className="pl-4 space-y-1">
-                  {member.skills.map((skill) => (
-                    <p key={skill} className="text-terminal-text text-sm">
-                      <span className="syntax-string">"{skill}"</span>,
-                    </p>
-                  ))}
-                </div>
-                <p className="text-terminal-yellow text-sm">]</p>
-              </div>
-
-              {/* Contact Info */}
-              {member.email && (
+                {/* Skills */}
                 <div className="mb-4">
-                  <a
-                    href={`mailto:${member.email}`}
-                    className="text-terminal-blue hover:text-terminal-green transition-colors text-sm font-mono"
-                  >
-                    <span className="syntax-variable">email</span>: <span className="syntax-string">"{member.email}"</span>
-                  </a>
+                  <p className="text-terminal-yellow text-xs font-mono mb-2 uppercase tracking-wider">
+                    Skills
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {member.skills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="text-xs bg-terminal-border/20 text-terminal-text/80 px-2 py-1 rounded border border-terminal-border/30 font-mono"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              )}
 
-              {/* Social Links */}
-              <div className="flex space-x-3">
-                {member.social.github && (
-                  <a
-                    href={member.social.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-terminal-text hover:text-terminal-green transition-colors"
-                  >
-                    <Github size={18} />
-                  </a>
+                {/* Contact Info */}
+                {member.email && (
+                  <div className="mb-4">
+                    <a
+                      href={`mailto:${member.email}`}
+                      className="text-terminal-blue hover:text-terminal-green transition-colors text-sm font-mono flex items-center gap-2 group/email"
+                    >
+                      <span className="w-2 h-2 bg-terminal-green rounded-full animate-pulse" />
+                      <span className="group-hover/email:underline">{member.email}</span>
+                    </a>
+                  </div>
                 )}
-                {member.social.linkedin && (
-                  <a
-                    href={member.social.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-terminal-text hover:text-terminal-blue transition-colors"
-                  >
-                    <Linkedin size={18} />
-                  </a>
-                )}
-                {member.social.facebook && (
-                  <a
-                    href={member.social.facebook}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-terminal-text hover:text-terminal-blue transition-colors"
-                  >
-                    <Facebook size={18} />
-                  </a>
-                )}
-                {member.social.instagram && (
-                  <a
-                    href={member.social.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-terminal-text hover:text-terminal-purple transition-colors"
-                  >
-                    <Instagram size={18} />
-                  </a>
-                )}
+
+                {/* Social Links */}
+                <div className="flex justify-center space-x-3 pt-4 border-t border-terminal-border/20">
+                  {member.social.github && (
+                    <a
+                      href={member.social.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-lg bg-terminal-border/10 border border-terminal-border/20 flex items-center justify-center text-terminal-text hover:text-terminal-green hover:border-terminal-green/50 hover:bg-terminal-green/10 transition-all duration-300"
+                    >
+                      <Github size={16} />
+                    </a>
+                  )}
+                  {member.social.linkedin && (
+                    <a
+                      href={member.social.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-lg bg-terminal-border/10 border border-terminal-border/20 flex items-center justify-center text-terminal-text hover:text-terminal-blue hover:border-terminal-blue/50 hover:bg-terminal-blue/10 transition-all duration-300"
+                    >
+                      <Linkedin size={16} />
+                    </a>
+                  )}
+                  {member.social.facebook && (
+                    <a
+                      href={member.social.facebook}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-lg bg-terminal-border/10 border border-terminal-border/20 flex items-center justify-center text-terminal-text hover:text-terminal-blue hover:border-terminal-blue/50 hover:bg-terminal-blue/10 transition-all duration-300"
+                    >
+                      <Facebook size={16} />
+                    </a>
+                  )}
+                  {member.social.instagram && (
+                    <a
+                      href={member.social.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 rounded-lg bg-terminal-border/10 border border-terminal-border/20 flex items-center justify-center text-terminal-text hover:text-terminal-purple hover:border-terminal-purple/50 hover:bg-terminal-purple/10 transition-all duration-300"
+                    >
+                      <Instagram size={16} />
+                    </a>
+                  )}
+                </div>
               </div>
+
+              {/* Hover Glow Effect */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-terminal-green/5 via-transparent to-terminal-blue/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
             </div>
           ))}
         </div>
