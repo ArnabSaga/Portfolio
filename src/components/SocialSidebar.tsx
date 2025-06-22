@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Github, Facebook, Instagram, Mail } from 'lucide-react';
 
@@ -58,10 +57,10 @@ const SocialSidebar = () => {
           clearTimeout(scrollTimeout);
         }
         
-        // Set new timeout to hide after scrolling stops
+        // Set new timeout to hide after 5 seconds when scrolling stops
         const newTimeout = setTimeout(() => {
           setIsVisible(false);
-        }, 2000); // Hide after 2 seconds of no scrolling
+        }, 5000); // Changed from 2000ms (2 seconds) to 5000ms (5 seconds)
         
         setScrollTimeout(newTimeout);
       } else {
