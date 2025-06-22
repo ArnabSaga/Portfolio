@@ -73,7 +73,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
         // Clear existing timeout
         clearTimeout(scrollTimeout);
         
-        // Hide quickly when scrolling stops (200ms delay for faster vanishing)
+        // Hide after 5 seconds when scrolling stops
         scrollTimeout = setTimeout(() => {
           isScrolling = false;
           // Hide if user is not at top and not actively scrolling
@@ -83,7 +83,7 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
             // Hide after scrolling stops, even if not at top
             setIsVisible(false);
           }
-        }, 200); // Reduced from 500ms to 200ms for quicker vanishing
+        }, 5000); // Changed from 200ms to 5000ms (5 seconds)
       });
     };
 
