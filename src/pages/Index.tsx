@@ -7,7 +7,6 @@ import About from '../components/About';
 import Services from '../components/Services';
 import Portfolio from '../components/Portfolio';
 import Contact from '../components/Contact';
-import AIAssistant from '../components/AIAssistant';
 import StatsSection from '../components/StatsSection';
 import ThreeJsShowcase from '../components/ThreeJsShowcase';
 import TechStack from '../components/TechStack';
@@ -21,14 +20,12 @@ import InteractiveTerminal from '../components/InteractiveTerminal';
 import ReactiveParticles from '../components/ReactiveParticles';
 import ProjectCarousel from '../components/ProjectCarousel';
 import RealTimeContactForm from '../components/RealTimeContactForm';
-import ThemeSwitcher from '../components/ThemeSwitcher';
 import SkillQuiz from '../components/SkillQuiz';
 import GitHubStats from '../components/GitHubStats';
 import GameSection from '../components/GameSection';
 import FuturisticAIChat from '../components/FuturisticAIChat';
 import RealTimeAIChat from '../components/RealTimeAIChat';
 import SocialSidebar from '../components/SocialSidebar';
-import PopupWeatherWidget from '../components/PopupWeatherWidget';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -156,41 +153,6 @@ const Index = () => {
             </ScrollReveal>
           </div>
         );
-      case 'ai-assistant':
-        return (
-          <div data-section="ai-assistant">
-            <ScrollReveal direction="up">
-              <AIAssistant />
-            </ScrollReveal>
-            <ScrollReveal direction="up" delay={300}>
-              <div className="py-20 px-6">
-                <div className="max-w-5xl mx-auto">
-                  <div className="text-center mb-12">
-                    <h2 className="text-4xl font-bold text-terminal-green mb-6 font-mono">
-                      <span className="syntax-keyword">class</span> <span className="syntax-function">RealTimeAI</span> {"{"}
-                    </h2>
-                    <p className="text-terminal-text/80 text-lg">
-                      <span className="syntax-comment">/* Live conversation with GPT-4, Claude, Groq and more */</span>
-                    </p>
-                  </div>
-                  <RealTimeAIChat />
-                  <div className="mt-12">
-                    <div className="text-center mb-8">
-                      <h3 className="text-2xl font-bold text-terminal-blue mb-4 font-mono">
-                        <span className="syntax-keyword">class</span> <span className="syntax-function">AdvancedAI</span> {"{"}
-                      </h3>
-                      <p className="text-terminal-text/80">
-                        <span className="syntax-comment">/* Enhanced neural interface with voice, image, and quantum processing */</span>
-                      </p>
-                    </div>
-                    <FuturisticAIChat />
-                  </div>
-                  <p className="text-terminal-green text-4xl font-bold mt-8 text-center">{"}"}</p>
-                </div>
-              </div>
-            </ScrollReveal>
-          </div>
-        );
       default:
         return (
           <>
@@ -238,8 +200,6 @@ const Index = () => {
       <MagneticCursor />
       <ParticleBackground />
       <FloatingNav activeSection={activeSection} setActiveSection={setActiveSection} />
-      <ThemeSwitcher />
-      <PopupWeatherWidget />
       <SocialSidebar />
       
       {/* Main Header */}
