@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Code, Database, Brain, Globe } from 'lucide-react';
 
@@ -95,7 +96,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden py-20 px-6">
+    <section className="min-h-screen flex flex-col justify-center relative overflow-hidden pt-20 pb-20 px-6">
       {/* Animated Background Grid */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute inset-0" style={{
@@ -110,7 +111,7 @@ const Hero = () => {
 
       {/* Floating Particles */}
       <div className="absolute inset-0 pointer-events-none">
-        {Array.from({ length: 30 }, (_, i) => (
+        {Array.from({ length, 30 }, (_, i) => (
           <div
             key={i}
             className="absolute w-1 h-1 bg-terminal-green rounded-full opacity-60"

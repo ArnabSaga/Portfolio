@@ -23,8 +23,6 @@ import RealTimeContactForm from '../components/RealTimeContactForm';
 import SkillQuiz from '../components/SkillQuiz';
 import GitHubStats from '../components/GitHubStats';
 import GameSection from '../components/GameSection';
-import FuturisticAIChat from '../components/FuturisticAIChat';
-import RealTimeAIChat from '../components/RealTimeAIChat';
 import SocialSidebar from '../components/SocialSidebar';
 
 const Index = () => {
@@ -37,13 +35,16 @@ const Index = () => {
     // Import navigation handler
     import('../utils/navigationHandler');
 
-    // Smooth scrolling
+    // Smooth scrolling and ensure page starts at top
     const style = document.createElement('style');
     style.textContent = `
       html { scroll-behavior: smooth; }
       body { cursor: none; }
     `;
     document.head.appendChild(style);
+
+    // Scroll to top on page load
+    window.scrollTo(0, 0);
 
     // Listen for custom navigation events
     const handleNavigation = (event: any) => {
@@ -205,7 +206,7 @@ const Index = () => {
       {/* Main Header */}
       <Header activeSection={activeSection} setActiveSection={setActiveSection} />
       
-      <main className="relative">
+      <main className="relative pt-0">
         {renderSection()}
         
         {/* Enhanced Background Patterns */}
