@@ -1,6 +1,5 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Terminal, User, Code, FolderOpen, Mail, Bot } from 'lucide-react';
+import { Terminal, User, Code, FolderOpen, Mail } from 'lucide-react';
 
 interface HeaderProps {
   activeSection: string;
@@ -19,8 +18,7 @@ const Header = ({ activeSection, setActiveSection }: HeaderProps) => {
     { id: 'about', label: 'About', icon: User, command: 'cd about' },
     { id: 'services', label: 'Services', icon: Code, command: 'cd services' },
     { id: 'portfolio', label: 'Portfolio', icon: FolderOpen, command: 'cd portfolio' },
-    { id: 'contact', label: 'Contact', icon: Mail, command: 'cd contact' },
-    { id: 'ai-assistant', label: 'AI Assistant', icon: Bot, command: 'cd ai-assistant' }
+    { id: 'contact', label: 'Contact', icon: Mail, command: 'cd contact' }
   ];
 
   const commands = {
@@ -30,7 +28,6 @@ const Header = ({ activeSection, setActiveSection }: HeaderProps) => {
     'cd services': 'services',
     'cd portfolio': 'portfolio',
     'cd contact': 'contact',
-    'cd ai-assistant': 'ai-assistant',
     'ls': 'list',
     'pwd': 'path',
     'whoami': 'user',
@@ -46,7 +43,7 @@ const Header = ({ activeSection, setActiveSection }: HeaderProps) => {
       
       switch (action) {
         case 'list':
-          return 'Available sections: home about services portfolio contact ai-assistant';
+          return 'Available sections: home about services portfolio contact';
         case 'path':
           return `/nodexstation/${activeSection}`;
         case 'user':

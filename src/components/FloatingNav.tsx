@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Home, User, Briefcase, FolderOpen, Mail, Bot } from 'lucide-react';
+import { Home, User, Briefcase, FolderOpen, Mail } from 'lucide-react';
 
 interface FloatingNavProps {
   activeSection: string;
@@ -34,10 +33,6 @@ const FloatingNav: React.FC<FloatingNavProps> = ({
     id: 'contact',
     icon: Mail,
     label: 'Contact'
-  }, {
-    id: 'ai-assistant',
-    icon: Bot,
-    label: 'AI Assistant'
   }], []);
 
   const handleScroll = useCallback(() => {
