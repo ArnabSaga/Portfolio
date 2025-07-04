@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import Header from '../components/Header';
@@ -23,7 +24,6 @@ import SkillQuiz from '../components/SkillQuiz';
 import GitHubStats from '../components/GitHubStats';
 import GameSection from '../components/GameSection';
 import SocialSidebar from '../components/SocialSidebar';
-import BackgroundMusic from '../components/BackgroundMusic';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
@@ -202,7 +202,6 @@ const Index = () => {
       <ParticleBackground />
       <FloatingNav activeSection={activeSection} setActiveSection={setActiveSection} />
       <SocialSidebar />
-      <BackgroundMusic />
       
       {/* Main Header */}
       <Header activeSection={activeSection} setActiveSection={setActiveSection} />
